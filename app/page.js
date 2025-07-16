@@ -1,21 +1,22 @@
-pages.js 'use client';
+'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
+  const [script, setScript] = useState('');
+  const [result, setResult] = useState('');
 
-  const validCodes = ['DEMO123', 'TRIAL456'];
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validCodes.includes(code.trim())) {
-      localStorage.setItem('hasAccess', 'true');
-      router.push('/demo');
-    } else {
-      setError('Invalid code. Please try again.');
+  const handleSubmit = async () => {
+    try {
+      const res = await fetch("https://scriptgrid-backend.onrender.com/analyze_script", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script_text: script })
+      });
+      const data = await res.json();
+      setResult(JSON.stringify(data, null, 2));
+    } catch (err) {
+      console.error('Error:', err);
+      setResult('Something went wrong.');
     }
   };
 
@@ -28,32 +29,29 @@ export default function Home() {
       height: '100vh',
       fontFamily: 'sans-serif'
     }}>
-      <h1>Enter Your Demo Code</h1>
-      <form onSubmit={handleSubmit} style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        width: '300px'
+      <h1>Script Submission</h1>
+      <textarea
+        value={script}
+        onChange={(e) => setScript(e.target.value)}
+        placeholder="Paste your script here..."
+        rows={10}
+        cols={50}
+        style={{ marginBottom: '1rem' }}
+      />
+      <button onClick={handleSubmit} style={{
+        padding: '0.5rem 1rem',
+        fontSize: '1rem',
+        cursor: 'pointer'
       }}>
-        <input
-          type="text"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Demo Code"
-          style={{ padding: '0.5rem', fontSize: '1rem' }}
-        />
-        <button
-          type="submit"
-          style={{
-            padding: '0.5rem',
-            fontSize: '1rem',
-            cursor: 'pointer'
-          }}
-        >
-          Continue
-        </button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
+        Get Results
+      </button>
+      {result && (
+        <pre style={{ textAlign: 'left', marginTop: '1rem', maxWidth: '600px', overflowX: 'auto' }}>
+          {result}
+        </pre>
+      )}
     </main>
   );
 }
+
+
