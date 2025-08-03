@@ -63,41 +63,73 @@ export default function Demo() {
       {error && <p className="text-red-600 mt-4">{error}</p>}
 
       {result && (
-        <div className="mt-10 w-full max-w-2xl space-y-8 bg-white p-6 rounded shadow">
+        <div className="mt-10 w-full max-w-3xl space-y-8 bg-white p-6 rounded shadow">
           <section>
             <h2 className="text-xl font-semibold mb-2">🧠 Topics</h2>
-            <ul className="list-disc list-inside text-gray-800">
-              {result.topics?.map((topic, i) => (
-                <li key={i}>{topic}</li>
-              ))}
-            </ul>
+            <p className="text-gray-800">{result.main_topics || 'No main topics found.'}</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold mb-2 flex items-center justify-between">
               🔑 Keywords
               <button
-                onClick={() => copyToClipboard(result.keywords?.join(', '))}
+                onClick={() => copyToClipboard(result.keywords?.join(', ') || '')}
                 className="text-sm bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
               >
                 Copy
               </button>
             </h2>
-            <ul className="flex flex-wrap gap-2 text-gray-700">
-              {result.keywords?.map((kw, i) => (
-                <li key={i} className="bg-blue-100 px-3 py-1 rounded-full text-sm">
-                  {kw}
-                </li>
-              ))}
+            <div className="flex flex-wrap gap-2">
+              {result.keywords?.length ? (
+                result.keywords.map((kw, i) => (
+                  <span key={i} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                    {kw}
+                  </span>
+                ))
+              ) : (
+                <p className="text-gray-600">No keywords found.</p>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-2">🔍 Search Queries</h2>
+            <ul className="list-disc list-inside text-gray-700">
+              {result.queries?.length ? (
+                result.queries.map((q, i) => <li key={i}>{q}</li>)
+              ) : (
+                <li>No queries available.</li>
+              )}
             </ul>
           </section>
 
-          {result.legal_estimate && (
-            <section>
-              <h2 className="text-xl font-semibold mb-2">⚖️ Legal Use Estimate</h2>
-              <p className="text-gray-800">{result.legal_estimate}</p>
-            </section>
-          )}
+          <section>
+            <h2 className="text-xl font-semibold mb-4">📰 Articles</h2>
+            {result.results?.length ? (
+              result.results.map((item, i) => (
+                <div key={i} className="border-b pb-4 mb-4">
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-lg font-semibold text-blue-700 hover:underline"
+                  >
+                    {item.title}
+                  </a>
+                  <p className="text-sm text-gray-600 mt-1">{item.date || 'No date'}</p>
+                  <p className="text-gray-800 mt-2">{item.description || 'No description provided.'}</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    <strong>Source Type:</strong> {item.legal_use?.label || 'Unknown'} — {item.legal_use?.note || ''}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <strong>Relevance:</strong> {item.relevance_score} | <strong>Query:</strong> {item.query}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-600">No articles found.</p>
+            )}
+          </section>
         </div>
       )}
     </main>
