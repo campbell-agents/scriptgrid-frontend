@@ -20,17 +20,17 @@ export default function Demo() {
     setError('');
     setResult(null);
     try {
-      const res = await fetch("https://scriptgrid-backend.onrender.com/analyze_script", {
+      const res = await fetch('https://scriptgrid-backend.onrender.com/analyze_script', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script_text: script })
+        body: JSON.stringify({ script_text: script }) // ✅ fixed key
       });
-      if (!res.ok) throw new Error('Server error');
+      if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
       const data = await res.json();
       setResult(data);
     } catch (err) {
       console.error('Error:', err);
-      setError('Something went wrong. Try again.');
+      setError('Something went wrong while analyzing your script.');
     } finally {
       setLoading(false);
     }
@@ -135,3 +135,4 @@ export default function Demo() {
     </main>
   );
 }
+
